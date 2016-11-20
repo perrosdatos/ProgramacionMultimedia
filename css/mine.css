@@ -1,0 +1,27 @@
+.caja1{ 
+	top: 55px; 
+	//left: 50px; 
+	z-index:0;
+}
+.caja2{ 
+	top: 25px; 
+	//left: 175px; 
+	z-index:30;
+}
+
+.tabla{
+	display:table;
+}
+.contenedorCanvas{
+	height: : 90%;
+}
+.celda{
+	display: table-cell; 
+}
+section{
+	top:0 !important;
+}
+canvas{
+	border-color: "blue";
+	border-width: 1;
+}
