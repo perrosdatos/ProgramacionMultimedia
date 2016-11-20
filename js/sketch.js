@@ -48,17 +48,23 @@ function setup(){
 	}
 	
 }
-function draw(){
-	//Pinta el fondo 
-	background(140,140,140);
-	//Obtiene el slide actual
+function draw(){	
+	if(tiempoSlide==0){
+		limpiaCanvas();
+	}
+//Obtiene el slide actual
 	var state = Reveal.getState();
 	//Dibuja el canvas correspondiente a la slide actual
 	dibujaSlide(state.indexh,state.indexv);
 	//Transcurre una iteración en esta diapositiva
 	tiempoSlide++;
 }
+function limpiaCanvas(){
+	//Pinta el fondo 
+	background(140,140,140);
 
+
+}
 //Manda a llamar las funciones correspondientes a cada diapositiva
 function dibujaSlide(x,y){
 	if(x==1 && y==0){
@@ -70,23 +76,24 @@ function dibujaSlide(x,y){
 }
 /*Definición de las funciones de pintado*/
 function plantilla1_0(){
+
 	var tiempoRelativo = tiempoSlide*2;
 	translate(width/2,height/2);
 	//rotate();
 
 	stroke("white");
 	noFill();
-	arc(100,100,100,100,0,(PI/180)*tiempoRelativo);
 	var angulo=PI/180;
-	for (var i = 0 ; i < tiempoRelativo%(360); i++) {
-			var x=Math.sin(angulo*i);
-			var y=Math.cos(angulo*i);
+	var i =  tiempoRelativo%(360);
+	var x=Math.sin(angulo*i);
+	var y=Math.cos(angulo*i);
+	point(-100-50*x,-150-50*y);
 			stroke(255,255,255);
-			line(-100+100*x,-200+100*y,100+100*x,100+100*y);
+			line(-100+100*x,-150+100*y,100+100*x,100+100*y);
 			stroke(255,30,i*2);
-			line(-100-50*x,-200-50*y,100+50*x,100+50*y);
-	}
-	arc(-100,-200,100,100,0,(PI/180)*tiempoRelativo);
+			line(-100-50*x,-150-50*y,100+50*x,100+50*y);
+	
+	arc(100+50*x,100+50*y);
 	//noFill();
 	
 
@@ -102,5 +109,5 @@ function plantilla2_0(){
 }
 /*Función que se ejecuta cuando el tamaño de la pantalla cambia(para que el canvas sea responsivo)*/
 function windowResized() {
-  resizeCanvas(windowWidth*0.7, windowHeight*0.8);
-}
+  	resizeCanvas(windowWidth*0.7, windowHeight*0.8);
+  }
