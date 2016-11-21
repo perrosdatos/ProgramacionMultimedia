@@ -1,25 +1,6 @@
-Reveal.initialize({
-				controls: true,
-				progress: true,
-				history: true,
-				center: true,
-
-				transition: 'slide', // none/fade/slide/convex/concave/zoom
-
-				// More info https://github.com/hakimel/reveal.js#dependencies
-				dependencies: [
-					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'plugin/zoom-js/zoom.js', async: true },
-					{ src: 'plugin/notes/notes.js', async: true }
-				]
-			});
-
-
 
 var cnv;
+var video;
 var mariposa=[];
 var mariposas=[];
 var tiempoSlide=0;
@@ -41,20 +22,25 @@ var diapositiva1_3 = "El uso de la programación para crear arte es una práctic
 					 "expertos se unieron al 'Demoscene', y probaron sus habilidades "+
 					 "entre sí creando 'demos': creaciones visuales altamente "+
 					 "técnicamente competentes.";
-//Evento que se ejecuta cuando cambiamos de diapositiva
-Reveal.addEventListener( 'slidechanged', function( event ) {
 
-	tiempoSlide=0;
-} );
+var diapositiva2_3 = "La visualización de datos es una proceso "+
+					 " que surgio en 1990 con el nacimiento de la web 2.0. Aun que en el siglo XVIII se "+
+					 "diversifico las primeras creaciones sobre visualización de datos  "+
+					 "que fueron planteadas durante los años anteriores. "+
+					 "En el siglo XIX hubo un gran crecimiento con respecto a "+
+					 "los gráficos estadísticos y mapas temáticos. "+
+					 "En este siglo las metodologias utilizadas para representar los Datos "+
+					 "a través de tablas tabulares o graficamente con cuadros y diagramas.";
+
 function recolocaCanvas(event){
 	if(cnv){
 		var elemento="canvas"+event.indexh+"-"+event.indexv;
 		//Cambia el canvas al contenedor que le corresponde 
 		if(document.getElementById(elemento)){
 			cnv.parent(elemento);
-			console.log("slidechanged");
 			//windowResized();
 		}
+
 		//Re-inicializa el tiempo que ha transcurrido en la actual diapositiva
 		tiempoSlide=0;
 	}
@@ -68,6 +54,11 @@ function preload(){
 	mariposa[2]  = loadImage("./imagen/mariposa-2.png"); 
 	mariposa[3]  = loadImage("./imagen/mariposa-3.png"); 
 	microfono = new p5.AudioIn();
+	//Reproduce un video en canvas
+	video = createVideo("./videos/planeta.mp4");
+	video.play();
+	video.hide();
+	video.pause();
 }
 function setup(){
 	//Inicializa el canvas al 80% del tamaño de la pantalla
@@ -107,11 +98,13 @@ function limpiaCanvas(){
 	//Pinta el fondo 
 	background("#222");
 
-
 }
 //Manda a llamar las funciones correspondientes a cada diapositiva
 function dibujaSlide(x,y){
-	if(x==1 && y==0){
+	if(x==0 && y==0){
+		plantilla0_0();
+	}
+	else if(x==1 && y==0){
 		plantilla1_0();
 	}
 	else if(x==1 && y==1){
@@ -124,6 +117,12 @@ function dibujaSlide(x,y){
 	}
 	else if(x==2 && y==0){
 		plantilla2_0();
+	}
+	else if(x==2 && y==1){
+		plantilla2_1();
+	}
+	else if(x==2 && y==2){
+		plantilla2_2();
 	}
 }
 /*Definición de las funciones de pintado*/
@@ -160,10 +159,28 @@ function plantilla1_0(){
 	
 
 }
+var recursion=0;
+function plantilla0_0(){
 
+	if(tiempoSlide == 0){
+		document.body.style.background 		= "rgba(22,22,22,0.3)";
+		document.body.style.backgroundColor	= "rgba(22,22,22,0.3)";
+
+		video.loop();
+		video.hide();
+		console.log("1");
+		recursion++;
+		if(recursion>2){
+			recursion=0;
+			return;
+		}
+			window.dispatchEvent(new Event('resize'));
+		recursion=0;
+	}
+	image(video,0,0,width,height);
+}
 function plantilla1_1(){
 
-	//translate(width/2,height/2);
 	if(tiempoSlide==0){
 		var colors=["red","green","blue","yellow"];
 		mariposas= new Array();
@@ -238,17 +255,53 @@ function plantilla1_2(){
 	stroke(0,255,194);
 	nivelMicrofono	=	microfono.getLevel();
 	noFill();
-	dibujaPoligono(0,0,100+40*nivelMicrofono,Math.floor((tiempoSlide/100)+2));
+	dibujaPoligono(0,0,100+150*nivelMicrofono,Math.floor((tiempoSlide/100)+2));
 }
+
 function plantilla2_0(){
 	
 	translate(width/2,height/2);
 	//rotate();
 	stroke("white");
 	noFill();
-	arc(-100,-100,100,0,tiempoSlide/60);
+	arc(-100,-100,100,100,0,tiempoSlide/60);
 
 }
+function plantilla2_1(){
+	
+	translate(width/2,height/2);
+	//rotate();
+	stroke("white");
+	noFill();
+	arc(-100,-100,100,100,0,tiempoSlide/60);
+
+}
+function plantilla2_2(){
+	
+	var indice	=	Math.floor((tiempoSlide/10));
+	limpiaCanvas();
+	if((velocidadX>5  || velocidadX < -5)&& mouseIsPressed){
+
+		tiempoSlide-=velocidadX;
+	}
+	if(tiempoSlide<0){
+		tiempoSlide=0;
+	}
+	if(indice>diapositiva2_3.length){
+		tiempoSlide= tiempoSlide%diapositiva2_3.length;
+	}
+	fill("white");
+	stroke("white");
+	text(diapositiva2_3.substring(indice),25,25);
+	textSize(20);
+	textFont("Georgia");
+	translate(width/2,height/2);
+	rotate((PI/45)*tiempoSlide);
+	stroke(0,255,194);
+	nivelMicrofono	=	microfono.getLevel();
+
+}
+
 function dibujaPoligono(x,y,radio,lados){
 	var angulo = (2*PI)/lados;
 	var alto1;
@@ -261,12 +314,17 @@ function dibujaPoligono(x,y,radio,lados){
 		alto2= radio*Math.cos(angulo*(i+1));
 		ancho2= radio*Math.sin(angulo*(i+1));
 		line(x+ancho1,y+alto1,x+ancho2,y+alto2);
-		//console.log("("+(x+ancho1)+","+(y+alto1)+","+(x+ancho2)+","+(y+alto2)+")");
 	}
 }
 /*Función que se ejecuta cuando el tamaño de la pantalla cambia(para que el canvas sea responsivo)*/
 function windowResized() {
-  	resizeCanvas(windowWidth*0.7, windowHeight*0.8);
+
+	var state = Reveal.getState();
+	if(state.indexh == 0 && state.indexv == 0){
+		resizeCanvas(windowWidth, windowHeight);
+	}else{
+		resizeCanvas(windowWidth*0.7, windowHeight*0.8);
+	}
   	mitadX=width/2;
   	mitadY=height/2;
-  }
+}

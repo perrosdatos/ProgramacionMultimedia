@@ -12,7 +12,10 @@ section.has-light-background, section.has-light-background h1, section.has-light
  *********************************************/
 body {
   background: #222;
-  background-color: #222; }
+  background-color: #222; 
+  //  background: rgba(22,22,22,0.3);
+  //  background-color:  rgba(22,22,22,0.3); 
+  }
 
 .reveal {
   font-family: "Source Sans Pro", Helvetica, sans-serif;
