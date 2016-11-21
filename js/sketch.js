@@ -25,24 +25,41 @@ var mariposas=[];
 var tiempoSlide=0;
 var antesMouseX=0;
 var antesMouseY=0;
+var velocidadX=0;
+var velocidadY=0;
+var velocidad=0;
+var acumulador=0;
 var mitadX=0;
 var mitadY=0;
+var microfono;
+var nivelMicrofono;
+var diapositiva1_3 = "El uso de la programación para crear arte es una práctica"+
+					 " que comenzó en los años sesenta. En décadas posteriores, "+
+					 "grupos como el Compos 68 exploraron con éxito la programación "+
+					 "con fines artísticos, presentando su obra en exposiciones "+
+					 "internacionales. A partir de los años 80, los programadores "+
+					 "expertos se unieron al 'Demoscene', y probaron sus habilidades "+
+					 "entre sí creando 'demos': creaciones visuales altamente "+
+					 "técnicamente competentes.";
 //Evento que se ejecuta cuando cambiamos de diapositiva
 Reveal.addEventListener( 'slidechanged', function( event ) {
 
+	tiempoSlide=0;
+} );
+function recolocaCanvas(event){
 	if(cnv){
 		var elemento="canvas"+event.indexh+"-"+event.indexv;
 		//Cambia el canvas al contenedor que le corresponde 
 		if(document.getElementById(elemento)){
 			cnv.parent(elemento);
+			console.log("slidechanged");
 			//windowResized();
 		}
 		//Re-inicializa el tiempo que ha transcurrido en la actual diapositiva
 		tiempoSlide=0;
 	}
 
-} );
-
+}
 function preload(){
 
 	
@@ -50,31 +67,41 @@ function preload(){
 	mariposa[1]  = loadImage("./imagen/mariposa-1.png"); 
 	mariposa[2]  = loadImage("./imagen/mariposa-2.png"); 
 	mariposa[3]  = loadImage("./imagen/mariposa-3.png"); 
+	microfono = new p5.AudioIn();
 }
 function setup(){
 	//Inicializa el canvas al 80% del tamaño de la pantalla
 	cnv= createCanvas(windowWidth*0.7, windowHeight*0.8);
 	mitadX=width/2;
 	mitadY=height/2;
+	microfono.start();
 	//Direcciona el canvas a la diapositiva 0,0
-	try{
+	/*try{
 		cnv.parent("canvas0-0");
 	}catch(e){
 		cnv.parent("canvas1-0");
-	}
+	}*/
 	
 }
 function draw(){
+	//Obtiene el slide actual
+	var state = Reveal.getState();
 
 	if(tiempoSlide==0){
 		limpiaCanvas();
+		recolocaCanvas(state);
+
 	}
-//Obtiene el slide actual
-	var state = Reveal.getState();
 	//Dibuja el canvas correspondiente a la slide actual
 	dibujaSlide(state.indexh,state.indexv);
 	//Transcurre una iteración en esta diapositiva
 	tiempoSlide++;
+	//Guarda los valores del mouse
+	velocidadX	= mouseX - antesMouseX;
+	velocidadY	= mouseY - antesMouseY;
+	velocidad	= velocidadY/velocidadX;
+	antesMouseY=mouseY;
+	antesMouseX=mouseX;
 }
 function limpiaCanvas(){
 	//Pinta el fondo 
@@ -91,24 +118,28 @@ function dibujaSlide(x,y){
 
 		plantilla1_1();
 	}
+	else if(x==1 && y==2){
+
+		plantilla1_2();
+	}
 	else if(x==2 && y==0){
 		plantilla2_0();
 	}
 }
 /*Definición de las funciones de pintado*/
 function plantilla1_0(){
-	var velocidad=0;
+	
 	if(tiempoSlide==0){
-		antesMouseY=mouseY;
-		antesMouseX=mouseX;
+		//antesMouseY=mouseY;
+		//antesMouseX=mouseX;
+		acumulador=0;
 
-	}
-	if(antesMouseX-mouseX != 0){
-		velocidad =( mouseY - antesMouseY)/(mouseX - antesMouseX);
+	}else if(velocidadX!= 0){
+		acumulador +=velocidad;
 	}
 	var tiempoRelativo = tiempoSlide*2;
 	translate(width/2,height/2);
-	rotate(velocidad);
+	rotate(acumulador);
 
 	stroke("white");
 	noFill();
@@ -142,8 +173,6 @@ function plantilla1_1(){
 			step: 0,
 			tint: colors[0] 
 		});
-		console.log("agregando primera");
-		console.log(mariposas);
 	}
 	if(mouseIsPressed){
 		var colors=["red","green","blue","yellow"];
@@ -154,7 +183,6 @@ function plantilla1_1(){
 			step: 0,
 			tint: colors[tamano%4] 
 		});
-		console.log("agregando la numero "+tamano);
 	}
 	limpiaCanvas();
 	stroke("white");
@@ -187,6 +215,31 @@ function plantilla1_1(){
 
 	}
 }
+function plantilla1_2(){
+	var indice	=	Math.floor((tiempoSlide/10));
+	limpiaCanvas();
+	if((velocidadX>5  || velocidadX < -5)&& mouseIsPressed){
+
+		tiempoSlide-=velocidadX;
+	}
+	if(tiempoSlide<0){
+		tiempoSlide=0;
+	}
+	if(indice>diapositiva1_3.length){
+		tiempoSlide= tiempoSlide%diapositiva1_3.length;
+	}
+	fill("white");
+	stroke("white");
+	text(diapositiva1_3.substring(indice),25,25);
+	textSize(18);
+	textFont("Georgia");
+	translate(width/2,height/2);
+	rotate((PI/45)*tiempoSlide);
+	stroke(0,255,194);
+	nivelMicrofono	=	microfono.getLevel();
+	noFill();
+	dibujaPoligono(0,0,100+40*nivelMicrofono,Math.floor((tiempoSlide/100)+2));
+}
 function plantilla2_0(){
 	
 	translate(width/2,height/2);
@@ -196,7 +249,21 @@ function plantilla2_0(){
 	arc(-100,-100,100,0,tiempoSlide/60);
 
 }
-
+function dibujaPoligono(x,y,radio,lados){
+	var angulo = (2*PI)/lados;
+	var alto1;
+	var alto2;
+	var ancho1;
+	var ancho2;
+	for (var i = 0; i < lados; i++) {
+		alto1= radio*Math.cos(angulo*i);
+		ancho1= radio*Math.sin(angulo*i);
+		alto2= radio*Math.cos(angulo*(i+1));
+		ancho2= radio*Math.sin(angulo*(i+1));
+		line(x+ancho1,y+alto1,x+ancho2,y+alto2);
+		//console.log("("+(x+ancho1)+","+(y+alto1)+","+(x+ancho2)+","+(y+alto2)+")");
+	}
+}
 /*Función que se ejecuta cuando el tamaño de la pantalla cambia(para que el canvas sea responsivo)*/
 function windowResized() {
   	resizeCanvas(windowWidth*0.7, windowHeight*0.8);
