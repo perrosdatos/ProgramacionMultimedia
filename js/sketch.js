@@ -1,6 +1,7 @@
 
 var cnv;
 var video;
+var particulas=[];
 var mariposa=[];
 var mariposas=[];
 var tiempoSlide=0;
@@ -23,14 +24,16 @@ var diapositiva1_3 = "El uso de la programación para crear arte es una práctic
 					 "entre sí creando 'demos': creaciones visuales altamente "+
 					 "técnicamente competentes.";
 
-var diapositiva2_3 = "La visualización de datos es una proceso "+
-					 " que surgio en 1990 con el nacimiento de la web 2.0. Aun que en el siglo XVIII se "+
+var diapositiva2_3 = "En el siglo XVIII estuvo en su apogeo y se  "+
 					 "diversifico las primeras creaciones sobre visualización de datos  "+
 					 "que fueron planteadas durante los años anteriores. "+
 					 "En el siglo XIX hubo un gran crecimiento con respecto a "+
 					 "los gráficos estadísticos y mapas temáticos. "+
-					 "En este siglo las metodologias utilizadas para representar los Datos "+
-					 "a través de tablas tabulares o graficamente con cuadros y diagramas.";
+					 "En este siglo las metodologias utilizadas para representar los Datos era"+
+					 "a través de tablas tabulares o graficamente con cuadros y diagramas."+
+					 "Pero fue hasta el siglo XX que se empezo a hacer la visualizacion de graficos en 2D y 3D"+
+					 "Aun que el termino \"visualización de datos\"  como tal  "+
+					 "surgio en 1990 con el nacimiento de la web 2.0.";
 
 function recolocaCanvas(event){
 	if(cnv){
@@ -257,24 +260,125 @@ function plantilla1_2(){
 	noFill();
 	dibujaPoligono(0,0,100+150*nivelMicrofono,Math.floor((tiempoSlide/100)+2));
 }
+var datosGrafica=[
+	{
+		arreglo: [10,12,14,15,18,13,14,34,50,20],
+		color:"rgba(200,0,0,0.5)"
+	},
+	{
+		arreglo: [10,12,14,25,8,23,24,14,30,20],
+		color:"rgba(0,200,0,0.5)"
+	},
+	{
+		arreglo: [10,42,24,15,48,13,24,21,10,20],
+		color:"rgba(0,0,200,0.5)"
+	},
+	{
+		arreglo: [20,22,34,45,28,14,15,33,20,10],
+		color:"rgba(120,120,0,0.5)"
+	}
+	
+	
+];
 
 function plantilla2_0(){
-	
-	translate(width/2,height/2);
-	//rotate();
+	var escala=0;
+	limpiaCanvas();
 	stroke("white");
-	noFill();
-	arc(-100,-100,100,100,0,tiempoSlide/60);
-
+	line(0,height/2,width,height/2);
+	line(30,0,30,height);
+	translate(0,height/2);
+	var maximo=0,minimo=0;
+	for (var i = datosGrafica.length-1;i>=0;i--) {
+		for (var j = datosGrafica[i].arreglo.length - 1; j >= 0; j--) {
+			if(datosGrafica[i].arreglo[j]>maximo)
+				maximo =datosGrafica[i].arreglo[j];
+			if(datosGrafica[i].arreglo[j]<minimo)
+				minimo =datosGrafica[i].arreglo[j];
+		}
+	}
+	if(maximo<-minimo){
+		maximo = -minimo;
+	}
+	escala = ((height/2)-30)/maximo;
+	fill("white");
+	stroke("white");
+	textSize(14);
+	textFont("Georgia");
+	line(15,-maximo*escala,45,-maximo*escala);
+	text(maximo,60,-maximo*escala +7);
+	line(15,maximo*escala,45,maximo*escala);
+	text(" - "+maximo,60,maximo*escala + 7);
+	
+	for (var i = datosGrafica.length-1;i>=0;i--) {
+		stroke(datosGrafica[i].color);
+		var ancho = width -30;
+		var intervalo = ancho / datosGrafica[i].arreglo.length;
+		for (var j = datosGrafica[i].arreglo.length - 1; j >= 0; j--) {
+			strokeWeight(6);
+			point(30+intervalo*j,-datosGrafica[i].arreglo[j]*escala);
+			strokeWeight(2);
+			line(30+intervalo*j,-datosGrafica[i].arreglo[j]*escala,30+intervalo*(j+1),-datosGrafica[i].arreglo[j+1]*escala);
+			datosGrafica[i].arreglo[j] += map(random(2),0,2,-1,1);
+		}
+	}
+	fill(0,0,random(255));
+  arc(400, 195, 200,200, 0, HALF_PI);
+  fill(255);
+  text("25%", 430, 233);
+  
+  fill(random(255),0,0);
+  arc(400, 195, 200,200, PI, TWO_PI);
+  fill(255);
+  text("37.5%", 400, 150);
+  
+  fill("yellow");
+  arc(400, 195, 200,200, PI, PI+QUARTER_PI);
+  fill("black");
+  text("12.5%", 320, 180);
+  
+  fill(0,random(255),0);
+  arc(400, 195, 200,200, HALF_PI, PI);
+  fill("black");
+  text("25%",350, 233);
 }
 function plantilla2_1(){
-	
-	translate(width/2,height/2);
-	//rotate();
-	stroke("white");
-	noFill();
-	arc(-100,-100,100,100,0,tiempoSlide/60);
-
+	if(tiempoSlide==0){
+		particulas=[];
+		particulas.push({
+			color:"rgba(130,0,20,0.5)",
+			x:mouseX,
+			y:mouseY,
+			radio:100
+		});
+	}
+	if(mouseIsPressed){
+		particulas.push({
+			color:"rgba(130,0,20,0.5)",
+			x:mouseX,
+			y:mouseY,
+			radio:50
+		});
+	}
+	limpiaCanvas();
+	for (var i = particulas.length - 1; i >= 0; i--) {
+		fill(particulas[i].color);
+		ellipse(particulas[i].x,particulas[i].y,2*particulas[i].radio,2*particulas[i].radio);
+		particulas[i].x+= map(random(20),0,20,-10,10);
+		particulas[i].y+= map(random(20),0,20,-10,10);
+		if(particulas[i].x<0 + particulas[i].radio){
+			particulas[i].x=0 + particulas[i].radio;
+		}
+		if(particulas[i].x > width -particulas[i].radio){
+			particulas[i].x=width -particulas[i].radio;
+		}
+		if(particulas[i].y<0 + particulas[i].radio){
+			particulas[i].y=0 + particulas[i].radio;
+		}
+		if(particulas[i].y> height -particulas[i].radio){
+			particulas[i].y=height -particulas[i].radio;
+		}
+	}
 }
 function plantilla2_2(){
 	
@@ -296,10 +400,61 @@ function plantilla2_2(){
 	textSize(20);
 	textFont("Georgia");
 	translate(width/2,height/2);
-	rotate((PI/45)*tiempoSlide);
+//	rotate((PI/45)*tiempoSlide);
 	stroke(0,255,194);
 	nivelMicrofono	=	microfono.getLevel();
-
+		strokeWeight(0);
+  fill(102,51,0);
+  ellipse(80, 80, 130, 130);
+  fill(255,229,204);
+  ellipse(80, 80, 100, 100);
+  fill(102,51,0);
+  arc(80, 70, 100, 100, PI, TWO_PI);
+  fill("black");
+  ellipse(60, 80, 20, 20); 
+  fill("black");
+  ellipse(100, 80, 20,20);
+  fill("white");
+  ellipse(54, 76, 7, 7); 
+  fill("white");
+  ellipse(94, 76, 7,7);
+  fill("black");
+  ellipse(80, 100, 10, 10);
+  fill("purple");
+  ellipse(80,200,100,146);
+  stroke(255,229,204);
+  strokeWeight(20);
+  line(115, 145, 160, 170);
+  strokeWeight(20);
+  line(40, 145, 1, 170);
+  strokeWeight(0);
+  stroke(204,204,255);
+  fill(204,204,255);
+  rect(30,200,99,99);
+  stroke(0,51,0);
+  fill(0,51,0);
+  rect(180,10,300,190);
+  stroke("blue");
+  fill(0,0,random(255));
+  ellipse(260, 100, 70,70);
+  fill(255);
+  text("25%", 263, 113);
+  fill(random(255),0,0);
+  arc(260, 100, 70, 70, PI, TWO_PI);
+  fill(255);
+  text("37.5%", 263, 100);
+  fill("yellow");
+  arc(260, 100, 70, 70, PI, PI+QUARTER_PI);
+  fill("black");
+  text("12.5%", 225, 100);
+  fill(0,random(255),0);
+  arc(260,100, 70, 70, HALF_PI, PI);
+  fill("black");
+  text("25%", 237, 113);
+  strokeWeight(4);
+  stroke(224,224,224);
+  line(160,170,mouseX,90);
+  strokeWeight(0);
 }
 
 function dibujaPoligono(x,y,radio,lados){
